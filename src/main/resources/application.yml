@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: web-crawler
+  datasource:
+    url: jdbc:mysql://localhost:3306/web?useSSL=false&createDatabaseIfNotExist=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true  
+liquibase:
+  enabled: true
+  change-log: classpath:/db/changelog/db.changelog-master.xml
+  
+  
