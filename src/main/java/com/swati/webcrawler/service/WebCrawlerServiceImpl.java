@@ -2,14 +2,17 @@ package com.swati.webcrawler.service;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.swati.webcrawler.dto.PageTree;
 import com.swati.webcrawler.dto.URLData;
 import com.swati.webcrawler.service.strategy.SameWebsiteOnlyStrategy;
@@ -21,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebCrawlerServiceImpl implements IWebCrawlerService{
 	
-	private static final Map<String,PageTree> PAGE_TREE = new HashMap<>();
+	private static final Map<String,PageTree> PAGE_TREE = new ConcurrentHashMap<>();
 	
 	@Autowired
 	URLDataService URLDataService;
@@ -38,7 +41,9 @@ public class WebCrawlerServiceImpl implements IWebCrawlerService{
 
 	@Override
 	public PageTree deepCrawl(final String url, final int depth, final String uuid, final List<String> processedUrls) {
-        log.debug("Starting crawler for url {} for depth {}", url, depth);
+		AtomicInteger  count = new AtomicInteger();
+		count.set(0);
+		log.debug("Starting crawler for url {} for depth {}", url, depth);
         if (depth < 0) {
             log.debug("Depth crossed returning for url {}", url);
             return null;
@@ -53,6 +58,7 @@ public class WebCrawlerServiceImpl implements IWebCrawlerService{
                 updatedProcessedUrls.add(url);
                 final PageTree pageTree = new PageTree(url);
                 WebCrawlerUtil.crawl(url).ifPresent(pageData -> {
+                	count.getAndAdd(pageData.getLinks().size());
                     pageTree.setTitle(pageData.getTitle());
                     pageTree.setImageCount(pageData.getImageCount());
                     log.info("Found {} links on the web page: {}", pageData.getLinks().size(), url);
@@ -60,6 +66,7 @@ public class WebCrawlerServiceImpl implements IWebCrawlerService{
                         pageTree.addNodesItem(deepCrawl(link.attr("abs:href"), depth - 1, uuid,updatedProcessedUrls));
                     });
                 });
+                pageTree.setTotalLinks(count.get());
                 return pageTree;
             } else {
                 return null;
