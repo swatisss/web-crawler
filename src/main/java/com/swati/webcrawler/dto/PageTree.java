@@ -15,10 +15,6 @@ public class PageTree {
    
     private int imageCount;
     
-    private int totalLinkCount;
-    
-    private int totalImageCount;
-    
     private List<PageTree> nodes;
 
 
@@ -63,8 +59,6 @@ public class PageTree {
             nodes = new ArrayList<>();
         }
         if (nodesItem != null) {
-        	this.totalLinkCount = this.totalLinkCount+nodesItem.getTotalLinkCount()+1;
-        	this.totalImageCount = this.totalLinkCount+nodesItem.getImageCount();
             nodes.add(nodesItem);
         }
         return this;
