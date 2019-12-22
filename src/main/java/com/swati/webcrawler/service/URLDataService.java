@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.swati.webcrawler.dao.repository.URLDataRepository;
 import com.swati.webcrawler.dto.URLData;
 
@@ -24,19 +26,22 @@ public class URLDataService {
 		}
 		catch(Exception e) {
 			log.error(" Exception occured while saving data");
+			e.printStackTrace();
 		}
 		return null;
 	}
 
-//	public void markURLCrawlingCompleted(String url, String uuid){
-//		log.info(" mark crwaling inprogress for {} ",uuid);
-//		try {
-//			 urlDataRepository.markCompleted(uuid, "COMPLETED");
-//		}
-//		catch(Exception e) {
-//			log.error(" Exception occured while saving data");
-//		}
-//	}
+	@Transactional
+	public void markURLCrawlingCompleted( String uuid){
+		log.info(" mark crwaling inprogress for {} ",uuid);
+		try {
+			 urlDataRepository.markCompleted(uuid, "COMPLETED");
+		}
+		catch(Exception e) {
+			log.error(" Exception occured while saving data");
+			e.printStackTrace();
+		}
+	}
 	public String getStatus(String uuid) {
 		try {
 			Optional<URLData> urlData =  urlDataRepository.getByUuid(uuid);
