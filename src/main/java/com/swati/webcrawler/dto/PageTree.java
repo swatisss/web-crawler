@@ -40,23 +40,36 @@ public class PageTree {
         this.nodes = nodes;
         return this;
     }
-
+    public int getTotalLinks() {
+    	if(nodes == null) {
+    		return 0;
+    	}
+    	return nodes.stream().collect(Collectors.summingInt(PageTree::getTotalLinks))+nodes.size();
+    }
+    
+    public int getTotalImageCount() {
+    	if(nodes == null) {
+    		return 0;
+    	}
+    	return nodes.stream().collect(Collectors.summingInt(PageTree::getTotalImageCount)) + this.imageCount;
+    }
     public PageTree addNodesItem(final PageTree nodesItem) {
         if (nodes == null) {
-        	//this.totalLinks =0;
             nodes = new ArrayList<>();
         }
         if (nodesItem != null) {
             nodes.add(nodesItem);  
-            //totalLinks = totalLinks + nodesItem.getTotalLinks();
-            //System.out.println("Setting total links to "+totalLinks);
         } 
         
         return this;
     }
-	public int getTotalImageCount() {
-		return totalImageCount + nodes.stream().collect(Collectors.summingInt(node -> node.getImageCount()));
+
+	@Override
+	public String toString() {
+		return "PageTree [url=" + url + ", title=" + title + ", imageCount=" + imageCount + ", nodes=" + nodes + "]";
 	}
+	
+    
     
 
 }

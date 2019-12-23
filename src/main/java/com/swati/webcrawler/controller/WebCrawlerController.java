@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class WebCrawlerController {
 	
-	public static final Integer DEFAULT_DEPTH = 10;
 	@Autowired
 	IWebCrawlerService webCrawlerService;
 	
@@ -41,8 +40,6 @@ public class WebCrawlerController {
     public ResponseEntity<PageTree> getCrawledNodes(
             @RequestParam final String token) {
 		PageTree pageTree = webCrawlerService.getPageTree(token);
-		int total = pageTree.getTotalLinks();
-		System.out.println(" total is "+total);
         return new ResponseEntity<>(pageTree,HttpStatus.OK);
     }
 

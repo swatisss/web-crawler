@@ -33,7 +33,7 @@ public class URLDataService {
 
 	@Transactional
 	public void markURLCrawlingCompleted( String uuid){
-		log.info(" mark crwaling inprogress for {} ",uuid);
+		log.info(" mark crwaling complete for {} ",uuid);
 		try {
 			 urlDataRepository.markCompleted(uuid, "COMPLETED");
 		}

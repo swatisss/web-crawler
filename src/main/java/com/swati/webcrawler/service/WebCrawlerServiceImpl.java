@@ -7,13 +7,11 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.swati.webcrawler.dto.PageTree;
 import com.swati.webcrawler.service.strategy.SameWebsiteOnlyStrategy;
 import com.swati.webcrawler.service.util.WebCrawlerUtil;
-
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -45,23 +43,16 @@ public class WebCrawlerServiceImpl implements IWebCrawlerService {
 			log.info("Invalid url {}", url);
 			return null;
 		}
-		AtomicInteger linkCount = new AtomicInteger();
-		linkCount.set(0);
 		final List<String> updatedProcessedUrls = Optional.ofNullable(processedUrls).orElse(new ArrayList<>());
 		updatedProcessedUrls.add(url);
 		final PageTree pageTree = new PageTree(url);
 		WebCrawlerUtil.crawl(url).ifPresent(pageData -> {
-			linkCount.getAndAdd(pageData.getLinks().size());
-			//pageTree.setTotalLinks(pageData.getLinks().size());
-			log.info(" setting total links to {} ",pageData.getLinks().size());
 			pageTree.setTitle(pageData.getTitle());
 			pageTree.setImageCount(pageData.getImageCount());
-			log.info("Found {} links on the web page: {}", pageData.getLinks().size(), url);
 			pageData.getLinks().parallelStream().forEach(link -> {
 				pageTree.addNodesItem(deepCrawl(link.attr("abs:href"), depth - 1, uuid, updatedProcessedUrls));
 			});
 		});
-		pageTree.setTotalLinks(linkCount.get());
 		return pageTree;
 
 	}
@@ -81,7 +72,7 @@ public class WebCrawlerServiceImpl implements IWebCrawlerService {
 
 	@Override
 	public void markComplete(PageTree pageTree, String uuid) {
-		System.out.println(pageTree);
+		log.info(" marking page tree url complete {} " ,pageTree);
 		PAGE_TREE.put(uuid, pageTree);
 		urlDataService.markURLCrawlingCompleted(uuid);
 		
